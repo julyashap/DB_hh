@@ -1,7 +1,6 @@
 from configparser import ConfigParser
 
 
-# инофрмация для БД
 def config(filename="database.ini", section="postgresql"):
     """Возвращает параметры для соединения с БД из специального файла с расширением .ini"""
 

@@ -4,14 +4,14 @@ from src.config import config
 
 
 class DBManager(AbstractDBManager):
-    def __init__(self, db_name: str):
+    def __init__(self, db_name: str, filename="database.ini"):
         """Конструктор класса"""
-        params = config()
+        params = config(filename)
 
         self.conn = psycopg2.connect(dbname=db_name, **params)
         self.cur = self.conn.cursor()
 
-    def create_tables(self):
+    def create_tables(self) -> None:
         """Создает таблицы в базе данных"""
         self.conn.autocommit = True
 
@@ -47,12 +47,12 @@ class DBManager(AbstractDBManager):
                              "values (%s, %s, %s)", (employer['id'], employer['name'], employer['open_vacancies']))
 
         for vacancy in vacancies:
-            if not vacancy.get('salary') or vacancy.get('salary').get('from') is None:
+            if isinstance(vacancy.get('salary'), int):
+                vacancy_salary = vacancy['salary']
+            elif not vacancy.get('salary') or vacancy.get('salary').get('from') is None:
                 vacancy_salary = 0
             elif vacancy.get('salary').get('from'):
                 vacancy_salary = vacancy['salary']['from']
-            else:
-                vacancy_salary = vacancy['salary']
 
             self.cur.execute("insert into vacancies (vacancy_id, vacancy_name, salary, vacancy_url, "
                              "employer_id) values (%s, %s, %s, %s, %s)",
